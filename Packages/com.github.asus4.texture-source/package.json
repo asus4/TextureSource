@@ -1,0 +1,14 @@
+{
+  "name": "com.github.asus4.texture-source",
+  "displayName": "TextureSource",
+  "author": "Koki Ibukuro",
+  "description": "Virtual Texture Source",
+  "keywords": [
+    "unity"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "unity": "2020.3",
+  "unityRelease": "0f1",
+  "version": "0.1.0",
+  "type": "tool"
+}
