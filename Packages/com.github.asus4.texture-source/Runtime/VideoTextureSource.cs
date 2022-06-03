@@ -7,6 +7,36 @@ namespace TextureSource
     [CreateAssetMenu(menuName = "Texture Source/Video", fileName = "VideoTextureSource")]
     public class VideoTextureSource : BaseTextureSource
     {
+        public enum VideoRotation
+        {
+            _0,
+            _90,
+            _180,
+            _270,
+        }
+
+        [System.Serializable]
+        public class VideoData
+        {
+            public VideoSource source;
+            public string url;
+            public VideoClip clip;
+            public VideoRotation rotation = VideoRotation._0;
+
+            public VideoSource Source => clip == null
+                ? VideoSource.Url : VideoSource.VideoClip;
+
+            public string URL
+            {
+                get
+                {
+                    return Path.IsPathRooted(url)
+                        ? url
+                        : Path.Combine(Application.dataPath, url);
+                }
+            }
+        }
+
         [SerializeField]
         [Tooltip("Whether to loop the video")]
         private bool loop = true;
@@ -16,8 +46,7 @@ namespace TextureSource
         private bool playSound = false;
 
         [SerializeField]
-        private string[] videoPaths;
-
+        private VideoData[] videos = default;
 
         private VideoPlayer player;
         private int currentIndex;
@@ -46,7 +75,7 @@ namespace TextureSource
                 : VideoAudioOutputMode.None;
             player.isLooping = loop;
 
-            currentIndex = Mathf.Min(currentIndex, videoPaths.Length - 1);
+            currentIndex = Mathf.Min(currentIndex, videos.Length - 1);
 
             StartVideo(currentIndex);
         }
@@ -65,7 +94,7 @@ namespace TextureSource
         public override void Next()
         {
             currentIndex++;
-            if (currentIndex >= videoPaths.Length)
+            if (currentIndex >= videos.Length)
             {
                 currentIndex = 0;
             }
@@ -74,14 +103,17 @@ namespace TextureSource
 
         private void StartVideo(int index)
         {
-            string url = this.videoPaths[index];
-            if (!Path.IsPathRooted(url))
+            var data = videos[index];
+            VideoSource source = data.Source;
+            player.source = source;
+            if (source == VideoSource.Url)
             {
-                url = Path.Combine(Application.dataPath, url);
+                player.url = data.URL;
             }
-
-            Debug.Log($"Start video: {url}");
-            player.url = url;
+            else
+            {
+                player.clip = data.clip;
+            }
             player.Prepare();
             player.Play();
 

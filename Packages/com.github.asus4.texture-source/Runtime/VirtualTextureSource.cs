@@ -1,6 +1,5 @@
 namespace TextureSource
 {
-    using System;
     using UnityEngine;
     using UnityEngine.Events;
 
@@ -15,12 +14,16 @@ namespace TextureSource
         public class AspectChangeEvent : UnityEvent<float> { }
 
         [SerializeField]
+        [Tooltip("A texture source scriptable object")]
         private BaseTextureSource source = default;
 
         [SerializeField]
+        [Tooltip("A texture source scriptable object for Editor. If it is null, used source in Editor")]
         private BaseTextureSource sourceForEditor = null;
 
+        [Tooltip("Event called when texture updated")]
         public TextureEvent OnTexture = new TextureEvent();
+        [Tooltip("Event called when the aspect ratio changed")]
         public AspectChangeEvent OnAspectChange = new AspectChangeEvent();
 
         private ITextureSource activeSource;
