@@ -16,8 +16,8 @@ MonoBehaviour:
   playSound: 0
   videos:
   - source: 0
-    url: /Users/ibu/Desktop/videos/Pexels Videos 2670.mp4
-    clip: {fileID: 0}
+    url: 
+    clip: {fileID: 32900000, guid: 035f5941b88954464a164282a5fb8632, type: 3}
   - source: 0
-    url: /Users/ibu/Desktop/videos/Pexels Videos 2773.mp4
-    clip: {fileID: 0}
+    url: 
+    clip: {fileID: 32900000, guid: 5092ab0c1fcaa4e48a047a6e78417543, type: 3}
