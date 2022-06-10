@@ -118,11 +118,6 @@ namespace TextureSource
                 transformer = new TextureTransformer(width, height);
             }
 
-            // Seems to be bug in the android. might be fixed in the future.
-            float rotation = Application.platform == RuntimePlatform.Android
-                ? webCamTexture.videoRotationAngle
-                : -webCamTexture.videoRotationAngle;
-
             Vector2 scale;
             if (isPortrait)
             {
@@ -132,7 +127,9 @@ namespace TextureSource
             {
                 scale = new Vector2(isFrontFacing ? -1 : 1, webCamTexture.videoVerticallyMirrored ? -1 : 1);
             }
-            transformer.Transform(webCamTexture, Vector2.zero, rotation, scale);
+            transformer.Transform(webCamTexture, Vector2.zero, -webCamTexture.videoRotationAngle, scale);
+
+            // Debug.Log($"mirrored: {webCamTexture.videoVerticallyMirrored}, angle: {webCamTexture.videoRotationAngle}, isFrontFacing: {isFrontFacing}");
 
             lastUpdatedFrame = Time.frameCount;
             return transformer.Texture;
