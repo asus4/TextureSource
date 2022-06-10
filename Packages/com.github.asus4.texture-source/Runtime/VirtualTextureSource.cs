@@ -23,6 +23,7 @@ namespace TextureSource
         private BaseTextureSource sourceForEditor = null;
 
         [SerializeField]
+        [Tooltip("If true, the texture is trimmed to the screen aspect ratio. Use this to show in full screen")]
         private bool trimToScreenAspect = false;
 
         [Tooltip("Event called when texture updated")]
