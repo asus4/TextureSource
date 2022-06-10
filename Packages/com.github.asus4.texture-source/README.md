@@ -1,6 +1,6 @@
 # Texture Source
 
-TextureSource is an utility for utilizing Computer Vision in Unity. It enables you to choose multiple input sources in Editor.
+TextureSource is an utility for using CV in Unity. It enables you to choose multiple input sources in Editor.
 
 ## Acknowledgement
 
