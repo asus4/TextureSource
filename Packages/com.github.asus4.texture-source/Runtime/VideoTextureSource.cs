@@ -7,21 +7,12 @@ namespace TextureSource
     [CreateAssetMenu(menuName = "ScriptableObject/Texture Source/Video", fileName = "VideoTextureSource")]
     public class VideoTextureSource : BaseTextureSource
     {
-        public enum VideoRotation
-        {
-            _0,
-            _90,
-            _180,
-            _270,
-        }
-
         [System.Serializable]
         public class VideoData
         {
             public VideoSource source;
             public string url;
             public VideoClip clip;
-            public VideoRotation rotation = VideoRotation._0;
 
             public VideoSource Source => clip == null
                 ? VideoSource.Url : VideoSource.VideoClip;
@@ -68,6 +59,7 @@ namespace TextureSource
         public override void Start()
         {
             GameObject go = new GameObject(nameof(VideoTextureSource));
+            DontDestroyOnLoad(go);
             player = go.AddComponent<VideoPlayer>();
             player.renderMode = VideoRenderMode.APIOnly;
             player.audioOutputMode = playSound

@@ -60,7 +60,7 @@ namespace TextureSource
                 return;
             }
 
-            Texture tex = activeSource.Texture;
+            Texture tex = Texture;
             OnTexture?.Invoke(tex);
 
             float aspect = (float)tex.width / tex.height;

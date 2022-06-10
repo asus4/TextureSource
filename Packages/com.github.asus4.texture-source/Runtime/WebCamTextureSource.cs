@@ -1,7 +1,6 @@
 namespace TextureSource
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using UnityEngine;
 
@@ -40,19 +39,23 @@ namespace TextureSource
         {
             get
             {
-                if (webCamTexture == null || !webCamTexture.didUpdateThisFrame)
+                if (webCamTexture == null || webCamTexture.width < 20)
                 {
+                    // On macOS, it returns the 10x10 texture at first several frames.
                     return false;
                 }
-                return true;
+                return webCamTexture.didUpdateThisFrame;
             }
         }
 
-        public override Texture Texture => webCamTexture;
+        public override Texture Texture => NormalizeWebCam();
 
         private WebCamDevice[] devices;
         private WebCamTexture webCamTexture;
         private int currentIndex;
+        private TextureTransformer transformer;
+        private int lastUpdatedFrame = -1;
+        private bool isFrontFacing;
 
         public override void Start()
         {
@@ -67,6 +70,8 @@ namespace TextureSource
                 webCamTexture.Stop();
                 webCamTexture = null;
             }
+            transformer?.Dispose();
+            transformer = null;
         }
 
         public override void Next()
@@ -81,6 +86,56 @@ namespace TextureSource
             WebCamDevice device = devices[index];
             webCamTexture = new WebCamTexture(device.name, resolution.x, resolution.y, frameRate);
             webCamTexture.Play();
+            isFrontFacing = device.isFrontFacing;
+            lastUpdatedFrame = -1;
+            Debug.Log($"Started camera:{device.name}");
+        }
+
+        private RenderTexture NormalizeWebCam()
+        {
+            if (webCamTexture == null)
+            {
+                return null;
+            }
+
+            if (lastUpdatedFrame == Time.frameCount)
+            {
+                return transformer.Texture;
+            }
+
+            bool isPortrait = webCamTexture.videoRotationAngle == 90 || webCamTexture.videoRotationAngle == 270;
+            int width = webCamTexture.width;
+            int height = webCamTexture.height;
+            if (isPortrait)
+            {
+                (width, height) = (height, width); // swap
+            }
+
+            bool needInitialize = transformer == null || width != transformer.width || height != transformer.height;
+            if (needInitialize)
+            {
+                transformer?.Dispose();
+                transformer = new TextureTransformer(width, height);
+            }
+
+            // Seems to be bug in the android. might be fixed in the future.
+            float rotation = Application.platform == RuntimePlatform.Android
+                ? webCamTexture.videoRotationAngle
+                : -webCamTexture.videoRotationAngle;
+
+            Vector2 scale;
+            if (isPortrait)
+            {
+                scale = new Vector2(webCamTexture.videoVerticallyMirrored ^ isFrontFacing ? -1 : 1, 1);
+            }
+            else
+            {
+                scale = new Vector2(isFrontFacing ? -1 : 1, webCamTexture.videoVerticallyMirrored ? -1 : 1);
+            }
+            transformer.Transform(webCamTexture, Vector2.zero, rotation, scale);
+
+            lastUpdatedFrame = Time.frameCount;
+            return transformer.Texture;
         }
 
         private bool IsMatchFilter(WebCamDevice device)
