@@ -29,12 +29,10 @@ namespace TextureSource
 
             if (compute == null)
             {
-                compute = Resources.Load<ComputeShader>("com.github.asus4.texture-source/TextureTransform");
+                const string SHADER_PATH = "com.github.asus4.texture-source/TextureTransform";
+                compute = Resources.Load<ComputeShader>(SHADER_PATH);
                 kernel = compute.FindKernel("TextureTransform");
             }
-
-            compute.SetTexture(kernel, _OutputTex, texture);
-            compute.SetInts(_OutputTexSize, texture.width, texture.height);
         }
 
         public void Dispose()
@@ -46,6 +44,8 @@ namespace TextureSource
         public RenderTexture Transform(Texture input, Matrix4x4 t)
         {
             compute.SetTexture(kernel, _InputTex, input);
+            compute.SetTexture(kernel, _OutputTex, texture);
+            compute.SetInts(_OutputTexSize, texture.width, texture.height);
             compute.SetMatrix(_TransformMatrix, t);
             compute.Dispatch(kernel, Mathf.CeilToInt(texture.width / 8f), Mathf.CeilToInt(texture.height / 8f), 1);
             return texture;
