@@ -87,10 +87,15 @@ namespace TextureSource
             activeSource?.Next();
         }
 
-        private RenderTexture TrimToScreen(Texture texture)
+        private Texture TrimToScreen(Texture texture)
         {
             float cameraAspect = (float)texture.width / texture.height;
             float targetAspect = (float)Screen.width / Screen.height;
+
+            if (Mathf.Abs(cameraAspect - targetAspect) < 0.01f)
+            {
+                return texture;
+            }
 
             int width, height;
             Vector2 scale;
