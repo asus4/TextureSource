@@ -4,7 +4,7 @@ namespace TextureSource
     using UnityEngine;
     using UnityEngine.Video;
 
-    [CreateAssetMenu(menuName = "Texture Source/Video", fileName = "VideoTextureSource")]
+    [CreateAssetMenu(menuName = "ScriptableObject/Texture Source/Video", fileName = "VideoTextureSource")]
     public class VideoTextureSource : BaseTextureSource
     {
         public enum VideoRotation
@@ -93,11 +93,7 @@ namespace TextureSource
 
         public override void Next()
         {
-            currentIndex++;
-            if (currentIndex >= videos.Length)
-            {
-                currentIndex = 0;
-            }
+            currentIndex = (currentIndex + 1) % videos.Length;
             StartVideo(currentIndex);
         }
 

@@ -2,6 +2,7 @@ namespace TextureSource
 {
     using UnityEngine;
     using UnityEngine.Events;
+    using UnityEngine.Scripting;
 
     /// <summary>
     /// Virtual Texture Source
@@ -70,7 +71,9 @@ namespace TextureSource
             }
         }
 
-        public void Next()
+        // Invoked by UI Events
+        [Preserve]
+        public void NextSource()
         {
             activeSource?.Next();
         }
