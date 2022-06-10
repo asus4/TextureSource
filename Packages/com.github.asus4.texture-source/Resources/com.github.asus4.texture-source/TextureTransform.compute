@@ -10,7 +10,12 @@ SamplerState linearClampSampler;
 [numthreads(8,8,1)]
 void TextureTransform (uint2 id : SV_DispatchThreadID)
 {
-    float2 uv = float2(id.x, id.y) / float2(_OutputTexSize.x, _OutputTexSize.y);
+    if(any(id >= _OutputTexSize))
+    {
+        return; 
+    }
+
+    float2 uv = float2(id.x, id.y) / float2(_OutputTexSize.x, _OutputTexSize.y);    
     uv = mul(_TransformMatrix, float4(uv, 0, 1)).xy;
 
     _OutputTex[id] = any(uv < 0) || any(uv > 1)

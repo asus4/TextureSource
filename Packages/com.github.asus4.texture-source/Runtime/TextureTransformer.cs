@@ -40,13 +40,14 @@ namespace TextureSource
         public void Dispose()
         {
             texture.Release();
+            Object.Destroy(texture);
         }
 
         public RenderTexture Transform(Texture input, Matrix4x4 t)
         {
             compute.SetTexture(kernel, _InputTex, input);
             compute.SetMatrix(_TransformMatrix, t);
-            compute.Dispatch(kernel, texture.width / 8, texture.height / 8, 1);
+            compute.Dispatch(kernel, Mathf.CeilToInt(texture.width / 8f), Mathf.CeilToInt(texture.height / 8f), 1);
             return texture;
         }
 
