@@ -57,10 +57,46 @@ namespace TextureSource
         private int lastUpdatedFrame = -1;
         private bool isFrontFacing;
 
+        public WebCamKindFlag KindFilter
+        {
+            get => kindFilter;
+            set => kindFilter = value;
+        }
+
+        public FacingFlag FacingFilter
+        {
+            get => facingFilter;
+            set => facingFilter = value;
+        }
+
+        public Vector2Int Resolution
+        {
+            get => resolution;
+            set => resolution = value;
+        }
+
+        public bool IsFrontFacing => isFrontFacing;
+
+        public int FrameRate
+        {
+            get => frameRate;
+            set => frameRate = value;
+        }
+
         public override void Start()
         {
             devices = WebCamTexture.devices.Where(IsMatchFilter).ToArray();
             StartCamera(currentIndex);
+        }
+
+        private void StartCamera(int index)
+        {
+            Stop();
+            WebCamDevice device = devices[index];
+            webCamTexture = new WebCamTexture(device.name, resolution.x, resolution.y, frameRate);
+            webCamTexture.Play();
+            isFrontFacing = device.isFrontFacing;
+            lastUpdatedFrame = -1;
         }
 
         public override void Stop()
@@ -78,17 +114,6 @@ namespace TextureSource
         {
             currentIndex = (currentIndex + 1) % devices.Length;
             StartCamera(currentIndex);
-        }
-
-        private void StartCamera(int index)
-        {
-            Stop();
-            WebCamDevice device = devices[index];
-            webCamTexture = new WebCamTexture(device.name, resolution.x, resolution.y, frameRate);
-            webCamTexture.Play();
-            isFrontFacing = device.isFrontFacing;
-            lastUpdatedFrame = -1;
-            Debug.Log($"Started camera:{device.name}");
         }
 
         private RenderTexture NormalizeWebCam()

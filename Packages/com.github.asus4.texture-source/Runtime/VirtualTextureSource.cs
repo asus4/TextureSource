@@ -39,6 +39,17 @@ namespace TextureSource
         public bool DidUpdateThisFrame => activeSource.DidUpdateThisFrame;
         public Texture Texture => activeSource.Texture;
 
+        public BaseTextureSource Source
+        {
+            get => source;
+            set => source = value;
+        }
+        public BaseTextureSource SourceForEditor
+        {
+            get => sourceForEditor;
+            set => sourceForEditor = value;
+        }
+
         private void OnEnable()
         {
             activeSource = sourceForEditor != null && Application.isEditor
