@@ -1,10 +1,10 @@
 # Texture Source
 
-TextureSource is an utility for using CV in Unity. It enables you to choose multiple input sources in Editor.
+TextureSource is a utility for using CV in Unity. It enables you to choose multiple input sources in Editor.
 
 ## Install via UPM
 
-Add following setting to `Packages/manifest.json`
+Add the following setting to `Packages/manifest.json`
 
 ```
 {
@@ -18,7 +18,7 @@ Add following setting to `Packages/manifest.json`
     }
   ],
   "dependencies": {
-    "com.github.asus4.texture-source": "0.1.0",
+    "com.github.asus4.texture-source": "0.1.3",
     ...// other dependencies
   }
 }
