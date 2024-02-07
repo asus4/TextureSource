@@ -4,7 +4,9 @@
       "version": "file:com.github.asus4.texture-source",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.unity.modules.video": "1.0.0"
+      }
     },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
@@ -68,13 +70,13 @@
     },
     "com.unity.modules.unitywebrequest": {
       "version": "1.0.0",
-      "depth": 1,
+      "depth": 2,
       "source": "builtin",
       "dependencies": {}
     },
     "com.unity.modules.video": {
       "version": "1.0.0",
-      "depth": 0,
+      "depth": 1,
       "source": "builtin",
       "dependencies": {
         "com.unity.modules.audio": "1.0.0",

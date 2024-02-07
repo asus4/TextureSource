@@ -15,5 +15,8 @@
   "author": {
     "name": "Koki Ibukuro",
     "url": "https://github.com/asus4"
+  },
+  "dependencies": {
+    "com.unity.modules.video": "1.0.0"
   }
 }
