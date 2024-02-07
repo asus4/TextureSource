@@ -6,7 +6,7 @@ TextureSource is a utility for using CV in Unity. It enables you to choose multi
 
 Add the following setting to `Packages/manifest.json`
 
-```
+```json
 {
   "scopedRegistries": [
     {
