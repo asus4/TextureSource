@@ -1,5 +1,12 @@
 #pragma kernel TextureTransform
 
+// Ported from RenderPipeLine-Core, to support both URP and Built-in RP in one shader
+
+float3 FastSRGBToLinear(float3 c)
+{
+    return c * (c * (c * 0.305306011 + 0.682171111) + 0.012522878);
+}
+
 Texture2D<float4> _InputTex;
 RWTexture2D<float4> _OutputTex;
 uint2 _OutputTexSize;
@@ -18,7 +25,12 @@ void TextureTransform (uint2 id : SV_DispatchThreadID)
     float2 uv = (float2)id / float2(_OutputTexSize - 1.0);
     uv = mul(_TransformMatrix, float4(uv, 0, 1)).xy;
 
+    float4 c = _InputTex.SampleLevel(linearClampSampler, uv, 0);
+#if !UNITY_COLORSPACE_GAMMA
+    c.rgb = FastSRGBToLinear(c.rgb);
+#endif // !UNITY_COLORSPACE_GAMMA
+
     _OutputTex[id] = any(uv < 0) || any(uv > 1)
         ? float4(0, 0, 0, 1)
-        : _InputTex.SampleLevel(linearClampSampler, uv, 0);
+        : c;
 }
