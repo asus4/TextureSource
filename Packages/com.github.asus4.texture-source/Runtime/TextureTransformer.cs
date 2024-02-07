@@ -1,11 +1,16 @@
 namespace TextureSource
 {
+    using System;
     using UnityEngine;
 
-    public class TextureTransformer : System.IDisposable
+    public class TextureTransformer : IDisposable
     {
-        private static ComputeShader compute;
-        private static int kernel;
+        public enum ShaderType
+        {
+            Default,
+            YCbCr,
+        }
+
         private static readonly int _InputTex = Shader.PropertyToID("_InputTex");
         private static readonly int _OutputTex = Shader.PropertyToID("_OutputTex");
         private static readonly int _OutputTexSize = Shader.PropertyToID("_OutputTexSize");
@@ -14,14 +19,29 @@ namespace TextureSource
         private static readonly Matrix4x4 PopMatrix = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
         private static readonly Matrix4x4 PushMatrix = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
+        private static readonly Lazy<ComputeShader> DefaultComputeShader = new(()
+         => Resources.Load<ComputeShader>("com.github.asus4.texture-source/TextureTransform"));
+        private static readonly Lazy<ComputeShader> YCbCrComputeShader = new(()
+         => Resources.Load<ComputeShader>("com.github.asus4.texture-source/TextureTransformYCbCr"));
+
+        private readonly ComputeShader compute;
+        private readonly int kernel;
         private RenderTexture texture;
         public readonly int width;
         public readonly int height;
 
         public RenderTexture Texture => texture;
 
-        public TextureTransformer(int width, int height)
+        public TextureTransformer(int width, int height, ShaderType shaderType = ShaderType.Default)
         {
+            compute = shaderType switch
+            {
+                ShaderType.Default => DefaultComputeShader.Value,
+                ShaderType.YCbCr => YCbCrComputeShader.Value,
+                _ => throw new NotImplementedException($"Unknown shader type: {shaderType}"),
+            };
+            kernel = compute.FindKernel("TextureTransform");
+
             this.width = width;
             this.height = height;
 
@@ -33,13 +53,6 @@ namespace TextureSource
             };
             texture = new RenderTexture(desc);
             texture.Create();
-
-            if (compute == null)
-            {
-                const string SHADER_PATH = "com.github.asus4.texture-source/TextureTransform";
-                compute = Resources.Load<ComputeShader>(SHADER_PATH);
-                kernel = compute.FindKernel("TextureTransform");
-            }
         }
 
         public void Dispose()
@@ -47,7 +60,7 @@ namespace TextureSource
             if (texture != null)
             {
                 texture.Release();
-                Object.Destroy(texture);
+                UnityEngine.Object.Destroy(texture);
             }
             texture = null;
         }
