@@ -101,42 +101,27 @@ namespace TextureSource
 
         private Texture TrimToScreen(Texture texture)
         {
-            float cameraAspect = (float)texture.width / texture.height;
-            float targetAspect = (float)Screen.width / Screen.height;
+            float srcAspect = (float)texture.width / texture.height;
+            float dstAspect = (float)Screen.width / Screen.height;
 
-            if (Mathf.Abs(cameraAspect - targetAspect) < 0.01f)
+            // Allow 1% mismatch
+            if (Mathf.Abs(srcAspect - dstAspect) < 0.01f)
             {
                 return texture;
             }
 
-            int width, height;
-            Vector2 scale;
-            if (cameraAspect > targetAspect)
-            {
-                width = RoundToEven(texture.height * targetAspect);
-                height = texture.height;
-                scale = new Vector2((float)texture.width / width, 1);
-            }
-            else
-            {
-                width = texture.width;
-                height = RoundToEven(texture.width / targetAspect);
-                scale = new Vector2(1, (float)texture.height / height);
-            }
+            Utils.GetTargetSizeScale(
+                new Vector2Int(texture.width, texture.height), dstAspect,
+                out Vector2Int dstSize, out Vector2 scale);
 
-            bool needInitialize = transformer == null || width != transformer.width || height != transformer.height;
+            bool needInitialize = transformer == null || dstSize.x != transformer.width || dstSize.y != transformer.height;
             if (needInitialize)
             {
                 transformer?.Dispose();
-                transformer = new TextureTransformer(width, height);
+                transformer = new TextureTransformer(dstSize.x, dstSize.y);
             }
 
             return transformer.Transform(texture, Vector2.zero, 0, scale);
-        }
-
-        private static int RoundToEven(float n)
-        {
-            return Mathf.RoundToInt(n / 2) * 2;
         }
     }
 }

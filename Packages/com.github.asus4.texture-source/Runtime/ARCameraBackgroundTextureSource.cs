@@ -99,29 +99,32 @@ namespace TextureSource
                 width = Math.Max(width, args.textures[i].width);
                 height = Math.Max(height, args.textures[i].height);
             }
-            // Swap if the screen is in portrait mode
-            if (width > height && Screen.width < Screen.height)
+
+            float screenAspect = (float)Screen.width / Screen.height;
+            // Swap if screen is portrait
+            if (width > height && screenAspect < 1f)
             {
                 (width, height) = (height, width);
             }
-            if (transformer == null || width != transformer.width || height != transformer.height)
+
+            Utils.GetTargetSizeScale(
+                new Vector2Int(width, height), screenAspect,
+                out Vector2Int dstSize, out Vector2 scale);
+
+            if (transformer == null || dstSize.x != transformer.width || dstSize.y != transformer.height)
             {
                 transformer?.Dispose();
-                transformer = new TextureTransformer(width, height, ARCameraComputeShader.Value);
+                transformer = new TextureTransformer(dstSize.x, dstSize.y, ARCameraComputeShader.Value);
             }
 
-            var mtx = args.displayMatrix.Value;
-            var transpose = mtx.transpose;
-            var rotation = mtx.rotation;
-            var scale = mtx.lossyScale;
-            mtx = PopMatrix * transpose * PushMatrix;
+            Matrix4x4 mtx = args.displayMatrix.Value;
+            mtx = PopMatrix * mtx.transpose * PushMatrix;
 
             transformer.Transform(propertyIdsSpan, texturesSpan, mtx);
 
             lastUpdatedFrame = Time.frameCount;
 
-            Debug.Log($"OnFrameReceived: matrix={mtx}, width={width}, height={height}");
-
+            // Debug.Log($"OnFrameReceived: matrix={mtx}, width={width}, height={height}");
         }
     }
 }
