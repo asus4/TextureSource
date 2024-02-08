@@ -54,6 +54,42 @@ Provides AR camera texture access. It supports both ARCore/ARKit.
 
 ![ar-faoundation-texture-source](https://github.com/asus4/TextureSource/assets/357497/5ac82a8a-0554-41a2-b9ef-c03ebd60c6ff)
 
+
+### Example API
+
+```c#
+using TextureSource;
+using UnityEngine;
+
+[RequireComponent(typeof(VirtualTextureSource))]
+public class TextureSourceSample: MonoBehaviour
+{
+    private void Start()
+    {
+        // Listen to OnTexture event from VirtualTextureSource
+        // Also able to bind in the inspector
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTexture);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTexture);
+        }
+    }
+
+    public void OnTexture(Texture texture)
+    {
+        // Do whatever
+    }
+}
+```
+
+
 ## Acknowledgement
 
 Inspired from [TestTools](https://github.com/keijiro/TestTools)
