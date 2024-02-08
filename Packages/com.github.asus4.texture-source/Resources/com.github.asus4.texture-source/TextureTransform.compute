@@ -1,5 +1,7 @@
 #pragma kernel TextureTransform
 
+#include "Common.hlsl"
+
 Texture2D<float4> _InputTex;
 RWTexture2D<float4> _OutputTex;
 uint2 _OutputTexSize;
@@ -18,7 +20,13 @@ void TextureTransform (uint2 id : SV_DispatchThreadID)
     float2 uv = (float2)id / float2(_OutputTexSize - 1.0);
     uv = mul(_TransformMatrix, float4(uv, 0, 1)).xy;
 
+    float4 c = _InputTex.SampleLevel(linearClampSampler, uv, 0);
+
+#ifndef UNITY_NO_LINEAR_COLORSPACE
+    c.rgb = FastSRGBToLinear(c.rgb);
+#endif // !UNITY_COLORSPACE_GAMMA
+
     _OutputTex[id] = any(uv < 0) || any(uv > 1)
         ? float4(0, 0, 0, 1)
-        : _InputTex.SampleLevel(linearClampSampler, uv, 0);
+        : c;
 }
