@@ -21,6 +21,7 @@ void TextureTransform (uint2 id : SV_DispatchThreadID)
     uv = mul(_TransformMatrix, float4(uv, 0, 1)).xy;
 
     float4 c = _InputTex.SampleLevel(linearClampSampler, uv, 0);
+
 #ifndef UNITY_NO_LINEAR_COLORSPACE
     c.rgb = FastSRGBToLinear(c.rgb);
 #endif // !UNITY_COLORSPACE_GAMMA

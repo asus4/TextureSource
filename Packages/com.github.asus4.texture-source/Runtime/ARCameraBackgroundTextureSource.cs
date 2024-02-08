@@ -4,41 +4,37 @@ namespace TextureSource
 {
     using System;
     using UnityEngine;
-    using UnityEngine.Assertions;
     using UnityEngine.XR.ARFoundation;
 
     [CreateAssetMenu(menuName = "ScriptableObject/Texture Source/ARFoundation", fileName = "ARFoundationTextureSource")]
     public sealed class ARFoundationTextureSource : BaseTextureSource
     {
-        private ARCameraManager cameraManager;
-        private TextureTransformer transformer;
+        private static readonly int _DisplayTransformID = Shader.PropertyToID("_UnityDisplayTransform");
 
-        private int[] propertyIds = new int[2];
-        private Texture[] textures = new Texture[2];
+        private ARCameraManager cameraManager;
+        private RenderTexture texture;
+        private Material material;
         private int lastUpdatedFrame = -1;
 
-        private static readonly Matrix4x4 PopMatrix = Matrix4x4.Translate(new Vector3(0.5f, 0.5f, 0));
-        private static readonly Matrix4x4 PushMatrix = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
-
-        public static readonly Lazy<ComputeShader> ARCameraComputeShader = new(() =>
+        private static readonly Lazy<Shader> ARCameraBackgroundShader = new(() =>
         {
             string shaderName = Application.platform switch
             {
-                RuntimePlatform.Android => "TextureTransformARCore",
-                RuntimePlatform.IPhonePlayer => "TextureTransformARKit",
+                RuntimePlatform.Android => "Unlit/ARCoreBackground",
+                RuntimePlatform.IPhonePlayer => "Unlit/ARKitBackground",
 #if UNITY_ANDROID
-                _ => "TextureTransformARCore",
+                _ => "Unlit/ARCoreBackground",
 #elif UNITY_IOS
-                _ => "TextureTransformARKit",
+                _ => "Unlit/ARKitBackground",
 #else
                 _ => throw new NotSupportedException($"ARFoundationTextureSource is not supported on {Application.platform}"),
 #endif
             };
-            return Resources.Load<ComputeShader>($"com.github.asus4.texture-source/{shaderName}");
+            return Shader.Find(shaderName);
         });
 
         public override bool DidUpdateThisFrame => lastUpdatedFrame == Time.frameCount;
-        public override Texture Texture => transformer?.Texture;
+        public override Texture Texture => texture;
 
         public override void Start()
         {
@@ -47,6 +43,10 @@ namespace TextureSource
             {
                 throw new InvalidOperationException("ARCameraManager is not found");
             }
+
+            var shader = ARCameraBackgroundShader.Value;
+            material = new Material(shader);
+
             cameraManager.frameReceived += OnFrameReceived;
         }
 
@@ -55,6 +55,19 @@ namespace TextureSource
             if (cameraManager != null)
             {
                 cameraManager.frameReceived -= OnFrameReceived;
+            }
+
+            if (texture != null)
+            {
+                texture.Release();
+                Destroy(texture);
+                texture = null;
+            }
+
+            if (material != null)
+            {
+                Destroy(material);
+                material = null;
             }
         }
 
@@ -73,58 +86,58 @@ namespace TextureSource
             };
         }
 
-
-
         private void OnFrameReceived(ARCameraFrameEventArgs args)
         {
-            Assert.IsTrue(args.displayMatrix.HasValue, "displayMatrix is null");
-
-            // Ensure the array length
+            // Find best texture size
+            int bestWidth = 0;
+            int bestHeight = 0;
             int count = args.textures.Count;
-            if (count > propertyIds.Length)
-            {
-                Array.Resize(ref propertyIds, count);
-                Array.Resize(ref textures, count);
-            }
-            var propertyIdsSpan = new Span<int>(propertyIds, 0, count);
-            var texturesSpan = new Span<Texture>(textures, 0, count);
-
-            // Set texture
-            int width = 0;
-            int height = 0;
             for (int i = 0; i < count; i++)
             {
-                propertyIdsSpan[i] = args.propertyNameIds[i];
-                texturesSpan[i] = args.textures[i];
-                width = Math.Max(width, args.textures[i].width);
-                height = Math.Max(height, args.textures[i].height);
+                var tex = args.textures[i];
+                bestWidth = Math.Max(bestWidth, tex.width);
+                bestHeight = Math.Max(bestHeight, tex.height);
+                material.SetTexture(args.propertyNameIds[i], tex);
             }
 
-            float screenAspect = (float)Screen.width / Screen.height;
             // Swap if screen is portrait
-            if (width > height && screenAspect < 1f)
+            float screenAspect = (float)Screen.width / Screen.height;
+            if (bestWidth > bestHeight && screenAspect < 1f)
             {
-                (width, height) = (height, width);
+                (bestWidth, bestHeight) = (bestHeight, bestWidth);
             }
 
+            // Create render texture
             Utils.GetTargetSizeScale(
-                new Vector2Int(width, height), screenAspect,
+               new Vector2Int(bestWidth, bestHeight), screenAspect,
                 out Vector2Int dstSize, out Vector2 scale);
+            EnsureRenderTexture(dstSize.x, dstSize.y);
 
-            if (transformer == null || dstSize.x != transformer.width || dstSize.y != transformer.height)
+            // SetMaterialKeywords(material, args.enabledMaterialKeywords, args.disabledMaterialKeywords);
+
+            if (args.displayMatrix.HasValue)
             {
-                transformer?.Dispose();
-                transformer = new TextureTransformer(dstSize.x, dstSize.y, ARCameraComputeShader.Value);
+                material.SetMatrix(_DisplayTransformID, args.displayMatrix.Value);
             }
 
-            Matrix4x4 mtx = args.displayMatrix.Value;
-            mtx = PopMatrix * mtx.transpose * PushMatrix;
-
-            transformer.Transform(propertyIdsSpan, texturesSpan, mtx);
+            Graphics.Blit(null, texture, material);
 
             lastUpdatedFrame = Time.frameCount;
+        }
 
-            // Debug.Log($"OnFrameReceived: matrix={mtx}, width={width}, height={height}");
+        private void EnsureRenderTexture(int width, int height)
+        {
+            if (texture == null || texture.width != width || texture.height != height)
+            {
+                if (texture != null)
+                {
+                    texture.Release();
+                    texture = null;
+                }
+                int depth = 32;
+                texture = new RenderTexture(width, height, depth, RenderTextureFormat.ARGB32);
+                texture.Create();
+            }
         }
     }
 }
