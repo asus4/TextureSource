@@ -1,5 +1,8 @@
 # Texture Source
 
+[![upm](https://img.shields.io/npm/v/com.github.asus4.texture-source?label=upm)](https://www.npmjs.com/package/com.github.asus4.texture-source)
+
+
 TextureSource is a utility that provides a consistent API to get the texture from various sources.
 
 ## Install via UPM
