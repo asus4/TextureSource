@@ -5,6 +5,45 @@
 
 TextureSource is a utility that provides a consistent API to get the texture from various sources.
 
+![virtual-texture](https://github.com/asus4/TextureSource/assets/357497/e52f80d2-b1be-4cfa-81f7-76cdafe271bc)
+
+## Example API: 
+
+```c#
+using TextureSource;
+using UnityEngine;
+
+[RequireComponent(typeof(VirtualTextureSource))]
+public class TextureSourceSample: MonoBehaviour
+{
+    private void Start()
+    {
+        // Listen to OnTexture event from VirtualTextureSource
+        // Also able to bind in the inspector
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.AddListener(OnTexture);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (TryGetComponent(out VirtualTextureSource source))
+        {
+            source.OnTexture.RemoveListener(OnTexture);
+        }
+    }
+
+    public void OnTexture(Texture texture)
+    {
+        // Do whatever 🥳
+        // You don't need to think about webcam texture rotation.
+    }   
+}
+```
+
+
+
 ## Install via UPM
 
 Add the following setting to `Packages/manifest.json`
@@ -56,42 +95,6 @@ Useful when using test videos only in the Editor.
 Provides AR camera texture access. It supports both ARCore/ARKit.
 
 ![ar-faoundation-texture-source](https://github.com/asus4/TextureSource/assets/357497/5ac82a8a-0554-41a2-b9ef-c03ebd60c6ff)
-
-
-### Example API
-
-```c#
-using TextureSource;
-using UnityEngine;
-
-[RequireComponent(typeof(VirtualTextureSource))]
-public class TextureSourceSample: MonoBehaviour
-{
-    private void Start()
-    {
-        // Listen to OnTexture event from VirtualTextureSource
-        // Also able to bind in the inspector
-        if (TryGetComponent(out VirtualTextureSource source))
-        {
-            source.OnTexture.AddListener(OnTexture);
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (TryGetComponent(out VirtualTextureSource source))
-        {
-            source.OnTexture.RemoveListener(OnTexture);
-        }
-    }
-
-    public void OnTexture(Texture texture)
-    {
-        // Do whatever
-    }
-}
-```
-
 
 ## Acknowledgement
 
