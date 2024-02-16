@@ -2,12 +2,11 @@
 
 [![upm](https://img.shields.io/npm/v/com.github.asus4.texture-source?label=upm)](https://www.npmjs.com/package/com.github.asus4.texture-source)
 
-
 TextureSource is a utility that provides a consistent API to get the texture from various sources.
 
 ![virtual-texture](https://github.com/asus4/TextureSource/assets/357497/e52f80d2-b1be-4cfa-81f7-76cdafe271bc)
 
-## Example API: 
+## Example API Usage
 
 ```c#
 using TextureSource;
@@ -42,8 +41,6 @@ public class TextureSourceSample: MonoBehaviour
 }
 ```
 
-
-
 ## Install via UPM
 
 Add the following setting to `Packages/manifest.json`
@@ -60,7 +57,7 @@ Add the following setting to `Packages/manifest.json`
     }
   ],
   "dependencies": {
-    "com.github.asus4.texture-source": "0.2.1",
+    "com.github.asus4.texture-source": "0.2.2",
     ...// other dependencies
   }
 }
@@ -72,29 +69,29 @@ After installing the library, attach `VirtualTextureSource` to the GameObject.
 
 ![virtual-texture](https://github.com/asus4/TextureSource/assets/357497/e52f80d2-b1be-4cfa-81f7-76cdafe271bc)
 
-Then, right-click on the project panel and create the TexureSource scriptable object that you want to use. You can set different sources for the Editor and Runtime.
+Then, right-click on the project panel and create the TextureSource scriptable object that you want to use. You can set different sources for the Editor and Runtime.
 
 ![scriptable-object](https://github.com/asus4/TextureSource/assets/357497/6c4862e2-5298-4f4e-8cd5-076d54d46db8)
 
 Currently provides the following sources:
 
-#### WebCam Texture Source
+### WebCam Texture Source
 
 Includes collecting device rotation.
 
 ![webcam-texture-source](https://github.com/asus4/TextureSource/assets/357497/407f7372-b214-4ba9-9093-2b39755b905b)
 
-#### Video Texture Source
+### Video Texture Source
 
 Useful when using test videos only in the Editor.
 
 ![video-texture-source](https://github.com/asus4/TextureSource/assets/357497/8e38ed1a-d2d8-4e16-9fc4-e5d4c6d0a888)
 
-#### AR Foundation Texture Source
+### AR Foundation Texture Source
 
 Provides AR camera texture access. It supports both ARCore/ARKit.
 
-![ar-faoundation-texture-source](https://github.com/asus4/TextureSource/assets/357497/5ac82a8a-0554-41a2-b9ef-c03ebd60c6ff)
+![ar-foundation-texture-source](https://github.com/asus4/TextureSource/assets/357497/5ac82a8a-0554-41a2-b9ef-c03ebd60c6ff)
 
 ## Acknowledgement
 
