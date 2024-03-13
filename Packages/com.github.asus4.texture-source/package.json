@@ -1,6 +1,6 @@
 {
   "name": "com.github.asus4.texture-source",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "displayName": "TextureSource",
   "description": "Simplify WebCamera and test video handling for using Computer Vision in Unity",
   "unity": "2020.3",
@@ -11,6 +11,7 @@
   ],
   "documentationUrl": "https://github.com/asus4/TextureSource/tree/main",
   "changelogUrl": "https://github.com/asus4/TextureSource/releases",
+  "license": "MIT",
   "licensesUrl": "https://github.com/asus4/TextureSource/blob/main/Packages/com.github.asus4.texture-source/LICENSE",
   "author": {
     "name": "Koki Ibukuro",

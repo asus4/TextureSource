@@ -2,6 +2,9 @@ namespace TextureSource
 {
     using UnityEngine;
 
+    /// <summary>
+    /// Abstract class for the source.
+    /// </summary>
     public abstract class BaseTextureSource : ScriptableObject, ITextureSource
     {
         public abstract bool DidUpdateThisFrame { get; }

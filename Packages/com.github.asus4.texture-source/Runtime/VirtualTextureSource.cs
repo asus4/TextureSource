@@ -5,7 +5,7 @@ namespace TextureSource
     using UnityEngine.Scripting;
 
     /// <summary>
-    /// Virtual Texture Source
+    /// Invokes texture update event from the provided texture source ScriptableObject asset.
     /// </summary>
     public class VirtualTextureSource : MonoBehaviour
     {

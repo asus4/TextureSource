@@ -4,30 +4,32 @@ namespace TextureSource
     using System.Linq;
     using UnityEngine;
 
+    /// <summary>
+    /// Source from WebCamTexture
+    /// </summary>
     [CreateAssetMenu(menuName = "ScriptableObject/Texture Source/WebCam", fileName = "WebCamTextureSource")]
     public sealed class WebCamTextureSource : BaseTextureSource
     {
-        [Flags]
-        public enum WebCamKindFlag
+        /// <summary>
+        /// Facing direction of the camera
+        /// </summary>
+        public enum CameraFacing
         {
-            WideAngle = 1 << 0,
-            Telephoto = 1 << 1,
-            ColorAndDepth = 1 << 2,
-            UltraWideAngle = 1 << 3,
-        }
-
-        [Flags]
-        public enum FacingFlag
-        {
-            Front = 1 << 0,
-            Back = 1 << 1,
+            Front,
+            Back,
         }
 
         [SerializeField]
-        private WebCamKindFlag kindFilter = WebCamKindFlag.WideAngle | WebCamKindFlag.Telephoto | WebCamKindFlag.UltraWideAngle;
+        [Tooltip("Priorities of Camera Facing Direction")]
+        private CameraFacing[] facingPriorities = new CameraFacing[] {
+            CameraFacing.Back, CameraFacing.Front
+        };
 
         [SerializeField]
-        private FacingFlag facingFilter = FacingFlag.Front | FacingFlag.Back;
+        [Tooltip("Priorities of WebCamKind")]
+        private WebCamKind[] kindPriority = new WebCamKind[] {
+            WebCamKind.WideAngle, WebCamKind.Telephoto, WebCamKind.UltraWideAngle,
+        };
 
         [SerializeField]
         private Vector2Int resolution = new Vector2Int(1270, 720);
@@ -57,16 +59,16 @@ namespace TextureSource
         private int lastUpdatedFrame = -1;
         private bool isFrontFacing;
 
-        public WebCamKindFlag KindFilter
+        public CameraFacing[] FacingPriorities
         {
-            get => kindFilter;
-            set => kindFilter = value;
+            get => facingPriorities;
+            set => facingPriorities = value;
         }
 
-        public FacingFlag FacingFilter
+        public WebCamKind[] KindPriorities
         {
-            get => facingFilter;
-            set => facingFilter = value;
+            get => kindPriority;
+            set => kindPriority = value;
         }
 
         public Vector2Int Resolution
@@ -85,7 +87,24 @@ namespace TextureSource
 
         public override void Start()
         {
-            devices = WebCamTexture.devices.Where(IsMatchFilter).ToArray();
+            static CameraFacing GetFacing(WebCamDevice device)
+            {
+                return device.isFrontFacing ? CameraFacing.Front : CameraFacing.Back;
+            }
+
+            // Sort with facing, then kind
+            devices = WebCamTexture.devices
+                .Where(d => facingPriorities.Contains(GetFacing(d)) && kindPriority.Contains(d.kind))
+                .OrderBy(d => Array.IndexOf(facingPriorities, GetFacing(d)))
+                .ThenBy(d => Array.IndexOf(kindPriority, d.kind))
+                .ToArray();
+
+            if (devices.Length == 0)
+            {
+                Debug.LogError("No available camera found for the given priorities. Falling back to the default.");
+                devices = WebCamTexture.devices;
+            }
+
             StartCamera(currentIndex);
         }
 
@@ -158,24 +177,6 @@ namespace TextureSource
 
             lastUpdatedFrame = Time.frameCount;
             return transformer.Texture;
-        }
-
-        private bool IsMatchFilter(WebCamDevice device)
-        {
-            WebCamKindFlag kind = device.kind switch
-            {
-                WebCamKind.WideAngle => WebCamKindFlag.WideAngle,
-                WebCamKind.Telephoto => WebCamKindFlag.Telephoto,
-                WebCamKind.ColorAndDepth => WebCamKindFlag.ColorAndDepth,
-                WebCamKind.UltraWideAngle => WebCamKindFlag.UltraWideAngle,
-                _ => throw new NotImplementedException($"Unknown WebCamKind: {device.kind}"),
-            };
-            FacingFlag facing = device.isFrontFacing
-                ? FacingFlag.Front
-                : FacingFlag.Back;
-
-            return kindFilter.HasFlag(kind)
-                && facingFilter.HasFlag(facing);
         }
     }
 }

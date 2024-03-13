@@ -2,6 +2,9 @@ namespace TextureSource
 {
     using UnityEngine;
 
+    /// <summary>
+    /// Interface for the source
+    /// </summary>
     public interface ITextureSource
     {
         bool DidUpdateThisFrame { get; }

@@ -4,6 +4,9 @@ namespace TextureSource
     using UnityEngine;
     using UnityEngine.Video;
 
+    /// <summary>
+    /// Source from video player
+    /// </summary>
     [CreateAssetMenu(menuName = "ScriptableObject/Texture Source/Video", fileName = "VideoTextureSource")]
     public class VideoTextureSource : BaseTextureSource
     {

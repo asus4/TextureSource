@@ -2,6 +2,9 @@ namespace TextureSource
 {
     using UnityEngine;
 
+    /// <summary>
+    /// Internal utility functions
+    /// </summary>
     internal static class Utils
     {
         public static void GetTargetSizeScale(

@@ -6,6 +6,9 @@ namespace TextureSource
     using UnityEngine;
     using UnityEngine.XR.ARFoundation;
 
+    /// <summary>
+    /// Source from ARFoundation
+    /// </summary>
     [CreateAssetMenu(menuName = "ScriptableObject/Texture Source/ARFoundation", fileName = "ARFoundationTextureSource")]
     public sealed class ARFoundationTextureSource : BaseTextureSource
     {
