@@ -4,6 +4,9 @@ namespace TextureSource
     using System.Linq;
     using UnityEngine;
 
+    /// <summary>
+    /// Source from WebCamTexture
+    /// </summary>
     [CreateAssetMenu(menuName = "ScriptableObject/Texture Source/WebCam", fileName = "WebCamTextureSource")]
     public sealed class WebCamTextureSource : BaseTextureSource
     {

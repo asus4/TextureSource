@@ -3,6 +3,9 @@ namespace TextureSource
     using System;
     using UnityEngine;
 
+    /// <summary>
+    /// Transforms 2D texture with any arbitrary matrix
+    /// </summary>
     public class TextureTransformer : IDisposable
     {
         private static readonly int _InputTex = Shader.PropertyToID("_InputTex");
