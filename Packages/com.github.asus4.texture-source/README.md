@@ -57,7 +57,7 @@ Add the following setting to `Packages/manifest.json`
     }
   ],
   "dependencies": {
-    "com.github.asus4.texture-source": "0.2.2",
+    "com.github.asus4.texture-source": "0.3.0",
     ...// other dependencies
   }
 }
@@ -86,6 +86,14 @@ Includes collecting device rotation.
 Useful when using test videos only in the Editor.
 
 ![video-texture-source](https://github.com/asus4/TextureSource/assets/357497/8e38ed1a-d2d8-4e16-9fc4-e5d4c6d0a888)
+
+### Image Texture Source
+
+Test with static images.
+
+`OnTexture` event is invoked every frame if the `sendContinuousUpdate` is enabled.
+
+![image-texture-source](https://github.com/asus4/TextureSource/assets/357497/3d7eef4b-40c5-40b4-8403-b70f394ce938)
 
 ### AR Foundation Texture Source
 

@@ -433,7 +433,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   source: {fileID: 11400000, guid: a5ad0dc7216ac447abb707b798e2554f, type: 2}
-  sourceForEditor: {fileID: 11400000, guid: a5ad0dc7216ac447abb707b798e2554f, type: 2}
+  sourceForEditor: {fileID: 11400000, guid: 60fbb9ba3137b4169bec4c56f9030e0e, type: 2}
   trimToScreenAspect: 0
   OnTexture:
     m_PersistentCalls:
