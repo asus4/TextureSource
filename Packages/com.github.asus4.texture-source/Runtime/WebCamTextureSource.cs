@@ -10,18 +10,23 @@ namespace TextureSource
     [CreateAssetMenu(menuName = "ScriptableObject/Texture Source/WebCam", fileName = "WebCamTextureSource")]
     public sealed class WebCamTextureSource : BaseTextureSource
     {
-        public enum Facing
+        /// <summary>
+        /// Facing direction of the camera
+        /// </summary>
+        public enum CameraFacing
         {
             Front,
             Back,
         }
 
         [SerializeField]
-        private Facing[] facingPriorities = new Facing[] {
-            Facing.Back, Facing.Front
+        [Tooltip("Priorities of Camera Facing Direction")]
+        private CameraFacing[] facingPriorities = new CameraFacing[] {
+            CameraFacing.Back, CameraFacing.Front
         };
 
         [SerializeField]
+        [Tooltip("Priorities of WebCamKind")]
         private WebCamKind[] kindPriority = new WebCamKind[] {
             WebCamKind.WideAngle, WebCamKind.Telephoto, WebCamKind.UltraWideAngle,
         };
@@ -54,7 +59,7 @@ namespace TextureSource
         private int lastUpdatedFrame = -1;
         private bool isFrontFacing;
 
-        public Facing[] FacingPriorities
+        public CameraFacing[] FacingPriorities
         {
             get => facingPriorities;
             set => facingPriorities = value;
@@ -82,15 +87,24 @@ namespace TextureSource
 
         public override void Start()
         {
-            static Facing GetFacing(WebCamDevice device)
+            static CameraFacing GetFacing(WebCamDevice device)
             {
-                return device.isFrontFacing ? Facing.Front : Facing.Back;
+                return device.isFrontFacing ? CameraFacing.Front : CameraFacing.Back;
             }
+
+            // Sort with facing, then kind
             devices = WebCamTexture.devices
                 .Where(d => facingPriorities.Contains(GetFacing(d)) && kindPriority.Contains(d.kind))
                 .OrderBy(d => Array.IndexOf(facingPriorities, GetFacing(d)))
                 .ThenBy(d => Array.IndexOf(kindPriority, d.kind))
                 .ToArray();
+
+            if (devices.Length == 0)
+            {
+                Debug.LogError("No available camera found for the given priorities. Falling back to the default.");
+                devices = WebCamTexture.devices;
+            }
+
             StartCamera(currentIndex);
         }
 
