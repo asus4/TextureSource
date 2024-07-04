@@ -137,8 +137,7 @@ namespace TextureSource
                     texture.Release();
                     texture = null;
                 }
-                int depth = 32;
-                texture = new RenderTexture(width, height, depth, RenderTextureFormat.ARGB32);
+                texture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
                 texture.Create();
             }
         }
