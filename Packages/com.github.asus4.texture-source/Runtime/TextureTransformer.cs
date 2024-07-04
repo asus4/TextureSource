@@ -27,7 +27,7 @@ namespace TextureSource
 
         public RenderTexture Texture => texture;
 
-        public TextureTransformer(int width, int height, ComputeShader shader = null)
+        public TextureTransformer(int width, int height, RenderTextureFormat format, ComputeShader shader = null)
         {
             compute = shader != null
                 ? shader
@@ -37,7 +37,7 @@ namespace TextureSource
             this.width = width;
             this.height = height;
 
-            var desc = new RenderTextureDescriptor(width, height, RenderTextureFormat.ARGB32)
+            var desc = new RenderTextureDescriptor(width, height, format)
             {
                 enableRandomWrite = true,
                 useMipMap = false,

@@ -159,7 +159,7 @@ namespace TextureSource
             if (needInitialize)
             {
                 transformer?.Dispose();
-                transformer = new TextureTransformer(width, height);
+                transformer = new TextureTransformer(width, height, RenderTextureFormat.ARGB32);
             }
 
             Vector2 scale;
