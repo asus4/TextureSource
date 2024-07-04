@@ -32,7 +32,7 @@ namespace TextureSource
 
         private AROcclusionManager occlusionManager;
 
-        protected override RenderTextureFormat PreferredRenderTextureFormat => RenderTextureFormat.ARGBFloat;
+        protected override RenderTextureFormat PreferredRenderTextureFormat => RenderTextureFormat.ARGBHalf;
 
         protected override Shader ARCameraBackgroundShader
         {
