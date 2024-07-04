@@ -3,6 +3,7 @@
 namespace TextureSource
 {
     using System;
+    using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.XR.ARFoundation;
 
@@ -10,34 +11,40 @@ namespace TextureSource
     /// Source from ARFoundation
     /// </summary>
     [CreateAssetMenu(menuName = "ScriptableObject/Texture Source/ARFoundation", fileName = "ARFoundationTextureSource")]
-    public sealed class ARFoundationTextureSource : BaseTextureSource
+    public class ARFoundationTextureSource : BaseTextureSource
     {
         private static readonly int _DisplayTransformID = Shader.PropertyToID("_UnityDisplayTransform");
 
         private ARCameraManager cameraManager;
         private RenderTexture texture;
-        private Material material;
         private int lastUpdatedFrame = -1;
 
-        private static readonly Lazy<Shader> ARCameraBackgroundShader = new(() =>
-        {
-            string shaderName = Application.platform switch
-            {
-                RuntimePlatform.Android => "Unlit/ARCoreBackground",
-                RuntimePlatform.IPhonePlayer => "Unlit/ARKitBackground",
-#if UNITY_ANDROID
-                _ => "Unlit/ARCoreBackground",
-#elif UNITY_IOS
-                _ => "Unlit/ARKitBackground",
-#else
-                _ => throw new NotSupportedException($"ARFoundationTextureSource is not supported on {Application.platform}"),
-#endif
-            };
-            return Shader.Find(shaderName);
-        });
+        protected Material material;
 
         public override bool DidUpdateThisFrame => lastUpdatedFrame == Time.frameCount;
         public override Texture Texture => texture;
+
+        protected virtual RenderTextureFormat PreferredRenderTextureFormat => RenderTextureFormat.ARGB32;
+
+        protected virtual Shader ARCameraBackgroundShader
+        {
+            get
+            {
+                string shaderName = Application.platform switch
+                {
+                    RuntimePlatform.Android => "Unlit/ARCoreBackground",
+                    RuntimePlatform.IPhonePlayer => "Unlit/ARKitBackground",
+#if UNITY_ANDROID
+                    _ => "Unlit/ARCoreBackground",
+#elif UNITY_IOS
+                    _ => "Unlit/ARKitBackground",
+#else
+                    _ => throw new NotSupportedException($"ARFoundationTextureSource is not supported on {Application.platform}"),
+#endif
+                };
+                return Shader.Find(shaderName);
+            }
+        }
 
         public override void Start()
         {
@@ -46,9 +53,7 @@ namespace TextureSource
             {
                 throw new InvalidOperationException("ARCameraManager is not found");
             }
-
-            var shader = ARCameraBackgroundShader.Value;
-            material = new Material(shader);
+            material = new Material(ARCameraBackgroundShader);
 
             cameraManager.frameReceived += OnFrameReceived;
         }
@@ -89,8 +94,12 @@ namespace TextureSource
             };
         }
 
+
         private void OnFrameReceived(ARCameraFrameEventArgs args)
         {
+            // The shader doesn't work for some reason when set ARKIT_BACKGROUND_URP 
+            // SetMaterialKeywords(material, args.enabledMaterialKeywords, args.disabledMaterialKeywords);
+
             // Find best texture size
             int bestWidth = 0;
             int bestHeight = 0;
@@ -112,11 +121,11 @@ namespace TextureSource
 
             // Create render texture
             Utils.GetTargetSizeScale(
-               new Vector2Int(bestWidth, bestHeight), screenAspect,
-                out Vector2Int dstSize, out Vector2 scale);
-            EnsureRenderTexture(dstSize.x, dstSize.y);
-
-            // SetMaterialKeywords(material, args.enabledMaterialKeywords, args.disabledMaterialKeywords);
+                new Vector2Int(bestWidth, bestHeight),
+                screenAspect,
+                out Vector2Int dstSize,
+                out Vector2 scale);
+            EnsureRenderTexture(ref texture, dstSize.x, dstSize.y, 24, PreferredRenderTextureFormat);
 
             if (args.displayMatrix.HasValue)
             {
@@ -128,16 +137,35 @@ namespace TextureSource
             lastUpdatedFrame = Time.frameCount;
         }
 
-        private void EnsureRenderTexture(int width, int height)
+        protected static void SetMaterialKeywords(Material material, List<string> enabledKeywords, List<string> disabledKeywords)
+        {
+            if (enabledKeywords != null)
+            {
+                foreach (var keyword in enabledKeywords)
+                {
+                    material.EnableKeyword(keyword);
+                }
+            }
+            if (disabledKeywords != null)
+            {
+                foreach (var keyword in disabledKeywords)
+                {
+                    material.DisableKeyword(keyword);
+                }
+            }
+        }
+
+        public static void EnsureRenderTexture(ref RenderTexture texture,
+            int width, int height,
+            int depth, RenderTextureFormat format)
         {
             if (texture == null || texture.width != width || texture.height != height)
             {
                 if (texture != null)
                 {
                     texture.Release();
-                    texture = null;
                 }
-                texture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+                texture = new RenderTexture(width, height, depth, format);
                 texture.Create();
             }
         }

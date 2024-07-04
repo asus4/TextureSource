@@ -118,7 +118,11 @@ namespace TextureSource
             if (needInitialize)
             {
                 transformer?.Dispose();
-                transformer = new TextureTransformer(dstSize.x, dstSize.y);
+                // Copy the format if the source is a RenderTexture
+                RenderTextureFormat format = (texture is RenderTexture renderTex)
+                    ? renderTex.format :
+                    RenderTextureFormat.ARGB32;
+                transformer = new TextureTransformer(dstSize.x, dstSize.y, format);
             }
 
             return transformer.Transform(texture, Vector2.zero, 0, scale);

@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: e468045a73ccc46f1afb6f48292c11b1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - shaderForARKit: {fileID: 4800000, guid: c8b0b30194e1b4026abc942f037e6f86, type: 3}
+  - shaderForARCore: {fileID: 4800000, guid: a68a981b98d2c47b881e7e696a7b0f1f, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
