@@ -47,7 +47,7 @@ namespace TextureSource
 #elif UNITY_IOS
                     _ => shaderForARKit,
 #else
-                    _ => throw new NotSupportedException($"ARFoundationTextureSource is not supported on {Application.platform}"),
+                    _ => throw new System.NotSupportedException($"ARFoundationTextureSource is not supported on {Application.platform}"),
 #endif
                 };
             }
