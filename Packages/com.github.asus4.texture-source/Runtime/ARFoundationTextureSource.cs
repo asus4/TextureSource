@@ -137,7 +137,7 @@ namespace TextureSource
             lastUpdatedFrame = Time.frameCount;
         }
 
-        protected static void SetMaterialKeywords(Material material, List<string> enabledKeywords, List<string> disabledKeywords)
+        protected static void SetMaterialKeywords(Material material, IReadOnlyList<string> enabledKeywords, IReadOnlyList<string> disabledKeywords)
         {
             if (enabledKeywords != null)
             {
