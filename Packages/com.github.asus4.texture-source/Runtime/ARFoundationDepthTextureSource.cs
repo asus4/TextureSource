@@ -82,6 +82,21 @@ namespace TextureSource
 
         private void OnOcclusionFrameReceived(AROcclusionFrameEventArgs args)
         {
+#if MODULE_ARFOUNDATION_6_1_ENABLED
+            var textures = args.externalTextures;
+            if (textures.Count == 0)
+            {
+                return;
+            }
+
+            var keywords = args.shaderKeywords;
+            SetMaterialKeywords(material, keywords.enabledKeywords, keywords.enabledKeywords);
+
+            foreach(var exTex in textures)
+            {
+                material.SetTexture(exTex.propertyId, exTex.texture);
+            }
+#else
             if (args.textures.Count == 0)
             {
                 return;
@@ -95,6 +110,7 @@ namespace TextureSource
                 var tex = args.textures[i];
                 material.SetTexture(args.propertyNameIds[i], tex);
             }
+#endif // MODULE_ARFOUNDATION_6_1_ENABLED
         }
     }
 }
