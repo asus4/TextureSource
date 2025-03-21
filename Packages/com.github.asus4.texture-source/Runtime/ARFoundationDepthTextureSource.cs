@@ -90,7 +90,7 @@ namespace TextureSource
             }
 
             var keywords = args.shaderKeywords;
-            SetMaterialKeywords(material, keywords.enabledKeywords, keywords.enabledKeywords);
+            SetMaterialKeywords(material, keywords.enabledKeywords, keywords.disabledKeywords);
 
             foreach(var exTex in textures)
             {
