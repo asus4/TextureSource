@@ -57,7 +57,7 @@ Add the following setting to `Packages/manifest.json`
     }
   ],
   "dependencies": {
-    "com.github.asus4.texture-source": "0.3.3",
+    "com.github.asus4.texture-source": "0.3.4",
     ...// other dependencies
   }
 }
