@@ -4,7 +4,7 @@ on:
     types: [published]
 jobs:
   publish:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
@@ -29,7 +29,7 @@ jobs:
       run: |
         # Dry-run on pre-release
         if [ "${{ github.event.release.prerelease }}" = "true" ]; then
-          npm publish *.tgz --dry-run --tag latest
+          npm publish *.tgz --provenance --dry-run --tag latest
         else
-          npm publish *.tgz --tag latest
+          npm publish *.tgz --provenance --tag latest
         fi
