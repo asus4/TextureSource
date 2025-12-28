@@ -42,5 +42,5 @@ gh release create "$TAG" \
 echo "✅ Release draft created successfully!"
 
 # Publish to NPM
-npm publish "$TGZ_FILE" --tag "$TAG"
+npm publish "$TGZ_FILE" --tag latest
 echo "✅ Published to NPM successfully!"
