@@ -1,0 +1,43 @@
+name: Publish to NPM
+on:
+  release:
+    types: [published]
+jobs:
+  publish:
+    runs-on: ubuntu-slim
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
+      with:
+        node-version: 'latest'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Download Unity Package from Release Page
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        # Get the release tag
+        TAG="${{ github.event.release.tag_name }}"
+        
+        # Download the .tgz file from release assets
+        gh release download "$TAG" --pattern "*.tgz" --dir .
+        
+        # Throw error if no .tgz file has been uploaded
+        if ! ls *.tgz 1> /dev/null 2>&1; then
+          echo "::error::No .tgz file found in release assets."
+          echo "Export and upload the Unity package from Unity Editor."
+          echo "See: https://docs.unity3d.com/6000.3/Documentation/Manual/cus-export.html"
+          exit 1
+        fi
+
+    - name: Publish to NPM
+      run: |
+        # Dry-run on pre-release
+        if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+          npm publish *.tgz --dry-run
+        else
+          npm publish *.tgz
+        fi
