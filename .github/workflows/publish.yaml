@@ -29,7 +29,9 @@ jobs:
       run: |
         # Dry-run on pre-release
         if [ "${{ github.event.release.prerelease }}" = "true" ]; then
-          npm publish *.tgz --provenance --dry-run --tag latest
+          npm publish *.tgz --access public --provenance --tag latest --dry-run 
         else
-          npm publish *.tgz --provenance --tag latest
+          npm publish *.tgz --access public --provenance --tag latest
         fi
+      env:
+        NPM_CONFIG_PROVENANCE: true
