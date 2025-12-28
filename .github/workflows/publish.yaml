@@ -14,16 +14,15 @@ jobs:
       with:
         node-version: 'latest'
         registry-url: 'https://registry.npmjs.org'
-
+    # Publish NPM using OIDC token
+    - run: npm install -g npm@latest
     - name: Download Unity Package from Release Page
       env:
         GH_TOKEN: ${{ github.token }}
-      run: |
-        # Get the release tag
+      run: |      
+        # Download the .tgz file from release assets, throws error if no .tgz file found.
+
         TAG="${{ github.event.release.tag_name }}"
-        
-        # Download the .tgz file from release assets.
-        # This throws error if no .tgz file found
         gh release download "$TAG" --pattern "*.tgz" --dir .
 
     - name: Publish to NPM
