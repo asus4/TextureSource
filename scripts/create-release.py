@@ -74,7 +74,7 @@ def main():
         repo_name = get_repo_name()
 
         print(f"""✅ Release draft created successfully!
-Open: https://github.com/{repo_name}/releases/tag/{tag}""")
+Open: https://github.com/{repo_name}/releases/""")
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)

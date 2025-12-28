@@ -29,7 +29,7 @@ jobs:
       run: |
         # Dry-run on pre-release
         if [ "${{ github.event.release.prerelease }}" = "true" ]; then
-          npm publish *.tgz --dry-run
+          npm publish *.tgz --dry-run --tag latest
         else
-          npm publish *.tgz
+          npm publish *.tgz --tag latest
         fi
