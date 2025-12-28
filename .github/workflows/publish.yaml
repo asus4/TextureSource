@@ -22,16 +22,9 @@ jobs:
         # Get the release tag
         TAG="${{ github.event.release.tag_name }}"
         
-        # Download the .tgz file from release assets
+        # Download the .tgz file from release assets.
+        # This throws error if no .tgz file found
         gh release download "$TAG" --pattern "*.tgz" --dir .
-        
-        # Throw error if no .tgz file has been uploaded
-        if ! ls *.tgz 1> /dev/null 2>&1; then
-          echo "::error::No .tgz file found in release assets."
-          echo "Export and upload the Unity package from Unity Editor."
-          echo "See: https://docs.unity3d.com/6000.3/Documentation/Manual/cus-export.html"
-          exit 1
-        fi
 
     - name: Publish to NPM
       run: |
