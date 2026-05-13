@@ -50,14 +50,33 @@ namespace TextureSource
             }
         }
 
-        public override Texture Texture => NormalizeWebCam();
+        public override Texture Texture => webCamTexture;
+
+        public override Matrix4x4 TransformMatrix
+        {
+            get
+            {
+                EnsureNormalizeCacheFresh();
+                return transformMatrix;
+            }
+        }
+
+        public override Vector2Int TransformSize
+        {
+            get
+            {
+                EnsureNormalizeCacheFresh();
+                return transformSize;
+            }
+        }
 
         private WebCamDevice[] devices;
         private WebCamTexture webCamTexture;
         private int currentIndex;
-        private TextureTransformer transformer;
         private int lastUpdatedFrame = -1;
         private bool isFrontFacing;
+        private Matrix4x4 transformMatrix = Matrix4x4.identity;
+        private Vector2Int transformSize;
 
         public CameraFacing[] FacingPriorities
         {
@@ -125,8 +144,7 @@ namespace TextureSource
                 webCamTexture.Stop();
                 webCamTexture = null;
             }
-            transformer?.Dispose();
-            transformer = null;
+            lastUpdatedFrame = -1;
         }
 
         public override void Next()
@@ -135,16 +153,17 @@ namespace TextureSource
             StartCamera(currentIndex);
         }
 
-        private RenderTexture NormalizeWebCam()
+        private void EnsureNormalizeCacheFresh()
         {
             if (webCamTexture == null)
             {
-                return null;
+                transformSize = Vector2Int.zero;
+                transformMatrix = Matrix4x4.identity;
+                return;
             }
-
             if (lastUpdatedFrame == Time.frameCount)
             {
-                return transformer.Texture;
+                return;
             }
 
             bool isPortrait = webCamTexture.videoRotationAngle == 90 || webCamTexture.videoRotationAngle == 270;
@@ -154,13 +173,7 @@ namespace TextureSource
             {
                 (width, height) = (height, width); // swap
             }
-
-            bool needInitialize = transformer == null || width != transformer.width || height != transformer.height;
-            if (needInitialize)
-            {
-                transformer?.Dispose();
-                transformer = new TextureTransformer(width, height, RenderTextureFormat.ARGB32);
-            }
+            transformSize = new Vector2Int(width, height);
 
             Vector2 scale;
             if (isPortrait)
@@ -171,12 +184,9 @@ namespace TextureSource
             {
                 scale = new Vector2(isFrontFacing ? -1 : 1, webCamTexture.videoVerticallyMirrored ? -1 : 1);
             }
-            transformer.Transform(webCamTexture, Vector2.zero, -webCamTexture.videoRotationAngle, scale);
-
-            // Debug.Log($"mirrored: {webCamTexture.videoVerticallyMirrored}, angle: {webCamTexture.videoRotationAngle}, isFrontFacing: {isFrontFacing}");
+            transformMatrix = TextureTransformer.BuildMatrix(Vector2.zero, -webCamTexture.videoRotationAngle, scale);
 
             lastUpdatedFrame = Time.frameCount;
-            return transformer.Texture;
         }
     }
 }

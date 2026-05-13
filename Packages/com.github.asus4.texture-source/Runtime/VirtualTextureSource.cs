@@ -32,7 +32,7 @@ namespace TextureSource
         [Tooltip("Event called when the aspect ratio changed")]
         public AspectChangeEvent OnAspectChange = new AspectChangeEvent();
 
-        private ITextureSource activeSource;
+        private BaseTextureSource activeSource;
         private float aspect = float.NegativeInfinity;
         private TextureTransformer transformer;
 
@@ -67,7 +67,11 @@ namespace TextureSource
 
         private void OnDisable()
         {
-            activeSource?.Stop();
+            if (activeSource != null)
+            {
+                activeSource.Stop();
+                activeSource = null;
+            }
             transformer?.Dispose();
             transformer = null;
         }
@@ -79,9 +83,7 @@ namespace TextureSource
                 return;
             }
 
-            Texture tex = trimToScreenAspect
-                ? TrimToScreen(Texture)
-                : Texture;
+            Texture tex = Transform();
             OnTexture?.Invoke(tex);
 
             float aspect = (float)tex.width / tex.height;
@@ -99,33 +101,52 @@ namespace TextureSource
             activeSource?.Next();
         }
 
-        private Texture TrimToScreen(Texture texture)
+        private Texture Transform()
         {
-            float srcAspect = (float)texture.width / texture.height;
-            float dstAspect = (float)Screen.width / Screen.height;
+            Texture originalTex = activeSource.Texture;
+            Matrix4x4 transformMatrix = activeSource.TransformMatrix;
+            Vector2Int transformSize = activeSource.TransformSize;
 
-            // Allow 1% mismatch
-            if (Mathf.Abs(srcAspect - dstAspect) < 0.01f)
+            bool needTrim = false;
+            Vector2Int dstSize = transformSize;
+            Matrix4x4 matrix = transformMatrix;
+
+            if (trimToScreenAspect)
             {
-                return texture;
+                float srcAspect = (float)transformSize.x / transformSize.y;
+                float dstAspect = (float)Screen.width / Screen.height;
+                // Allow 1% mismatch
+                needTrim = Mathf.Abs(srcAspect - dstAspect) >= 0.01f;
+                if (needTrim)
+                {
+                    Utils.GetTargetSizeScale(transformSize, dstAspect, out dstSize, out Vector2 scale);
+                    var trimMatrix = TextureTransformer.BuildMatrix(Vector2.zero, 0, scale);
+                    matrix = transformMatrix * trimMatrix;
+                }
             }
 
-            Utils.GetTargetSizeScale(
-                new Vector2Int(texture.width, texture.height), dstAspect,
-                out Vector2Int dstSize, out Vector2 scale);
-
-            bool needInitialize = transformer == null || dstSize.x != transformer.width || dstSize.y != transformer.height;
-            if (needInitialize)
+            if (!needTrim && transformMatrix.isIdentity)
             {
-                transformer?.Dispose();
-                // Copy the format if the source is a RenderTexture
-                RenderTextureFormat format = (texture is RenderTexture renderTex)
-                    ? renderTex.format :
-                    RenderTextureFormat.ARGB32;
-                transformer = new TextureTransformer(dstSize.x, dstSize.y, format);
+                return originalTex;
             }
 
-            return transformer.Transform(texture, Vector2.zero, 0, scale);
+            EnsureTransformer(dstSize, originalTex);
+            return transformer.Transform(originalTex, matrix);
+        }
+
+        private void EnsureTransformer(Vector2Int size, Texture tex)
+        {
+            if (transformer != null && transformer.width == size.x && transformer.height == size.y)
+            {
+                // No need to recreate
+                return;
+            }
+            // Recreate transformer with new size
+            transformer?.Dispose();
+            RenderTextureFormat format = (tex is RenderTexture renderTex)
+                ? renderTex.format
+                : RenderTextureFormat.ARGB32;
+            transformer = new TextureTransformer(size.x, size.y, format);
         }
     }
 }
