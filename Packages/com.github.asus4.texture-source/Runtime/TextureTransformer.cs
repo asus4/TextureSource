@@ -84,11 +84,20 @@ namespace TextureSource
         /// <returns>The transformed texture</returns>
         public RenderTexture Transform(Texture input, Vector2 offset, float eulerRotation, Vector2 scale)
         {
+            return Transform(input, BuildMatrix(offset, eulerRotation, scale));
+        }
+
+        /// <summary>
+        /// Build a destination-UV → source-UV sampling matrix from offset, rotation, and scale.
+        /// Same convention used by <see cref="Transform(Texture, Vector2, float, Vector2)"/>.
+        /// </summary>
+        public static Matrix4x4 BuildMatrix(Vector2 offset, float eulerRotation, Vector2 scale)
+        {
             Matrix4x4 trs = Matrix4x4.TRS(
                 new Vector3(-offset.x, -offset.y, 0),
                 Quaternion.Euler(0, 0, -eulerRotation),
                 new Vector3(1f / scale.x, 1f / scale.y, 1));
-            return Transform(input, PopMatrix * trs * PushMatrix);
+            return PopMatrix * trs * PushMatrix;
         }
 
         /// <summary>
