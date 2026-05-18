@@ -94,6 +94,8 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: dist/*.tgz
+          prerelease: true
+          generate_release_notes: true
 
       - name: Publish to npm
         if: github.event_name == 'push'
