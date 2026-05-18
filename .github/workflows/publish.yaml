@@ -84,7 +84,7 @@ jobs:
           tar -tzf "$archive" | grep -qx 'package/package.json'
           tar -tzf "$archive" | grep -qx 'package/.attestation.p7m'
 
-          echo "PACKAGE_ARCHIVE=./$archive" >> "$GITHUB_ENV"
+          echo "PACKAGE_ARCHIVE=$GITHUB_WORKSPACE/$archive" >> "$GITHUB_ENV"
           printf 'Archive: %s\n' "$(basename "$archive")"
           tar -xOzf "$archive" package/package.json | jq '{name, version}'
 
@@ -98,8 +98,10 @@ jobs:
 
       - name: Publish to npm
         if: github.event_name == 'push'
+        working-directory: ${{ env.PACKAGE_DIR }}
         run: npm publish "$PACKAGE_ARCHIVE" --registry https://registry.npmjs.org --access public --provenance --tag latest
 
       - name: Dry run npm publish
         if: github.event_name == 'workflow_dispatch'
+        working-directory: ${{ env.PACKAGE_DIR }}
         run: npm publish "$PACKAGE_ARCHIVE" --registry https://registry.npmjs.org --access public --provenance --tag latest --dry-run
