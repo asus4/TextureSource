@@ -61,7 +61,7 @@ jobs:
         if: github.event_name == 'push'
         uses: softprops/action-gh-release@v3
         with:
-          files: "$DIST_DIR/*.tgz"
+          files: ${{ env.DIST_DIR }}/*.tgz
           draft: true
           generate_release_notes: true
 
