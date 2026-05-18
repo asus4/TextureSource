@@ -83,7 +83,7 @@ jobs:
           tar -tzf "$archive" | grep -qx 'package/package.json'
           tar -tzf "$archive" | grep -qx 'package/.attestation.p7m'
 
-          echo "PACKAGE_ARCHIVE=$archive" >> "$GITHUB_ENV"
+          echo "PACKAGE_ARCHIVE=./$archive" >> "$GITHUB_ENV"
           printf 'Archive: %s\n' "$(basename "$archive")"
           tar -xOzf "$archive" package/package.json | jq '{name, version}'
 
