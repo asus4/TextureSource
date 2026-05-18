@@ -32,7 +32,6 @@ jobs:
         with:
           # See https://docs.npmjs.com/trusted-publishers
           node-version: 24
-          registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
       - name: Install latest npm
@@ -99,8 +98,8 @@ jobs:
 
       - name: Publish to npm
         if: github.event_name == 'push'
-        run: npm publish "$PACKAGE_ARCHIVE" --access public --provenance --tag latest
+        run: npm publish "$PACKAGE_ARCHIVE" --registry https://registry.npmjs.org --access public --provenance --tag latest
 
       - name: Dry run npm publish
         if: github.event_name == 'workflow_dispatch'
-        run: npm publish "$PACKAGE_ARCHIVE" --access public --provenance --tag latest --dry-run
+        run: npm publish "$PACKAGE_ARCHIVE" --registry https://registry.npmjs.org --access public --provenance --tag latest --dry-run
