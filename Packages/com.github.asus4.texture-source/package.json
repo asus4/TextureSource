@@ -11,6 +11,10 @@
   ],
   "documentationUrl": "https://github.com/asus4/TextureSource/tree/main",
   "changelogUrl": "https://github.com/asus4/TextureSource/releases",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asus4/TextureSource.git"
+  },
   "license": "MIT",
   "licensesUrl": "https://github.com/asus4/TextureSource/blob/main/Packages/com.github.asus4.texture-source/LICENSE",
   "author": {
