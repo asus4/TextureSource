@@ -1,6 +1,8 @@
 #!/bin/bash
 #
-# Create a GitHub release draft from a tgz package file
+# Create a GitHub release draft from a tgz package file.
+#
+# Publishing to npm is handled by .github/workflows/publish.yaml.
 # Usage: ./scripts/create-release.sh <tgz-file-path>
 #
 
@@ -40,7 +42,3 @@ gh release create "$TAG" \
     "$TGZ_FILE"
 
 echo "✅ Release draft created successfully!"
-
-# Publish to NPM
-npm publish "$TGZ_FILE" --tag latest
-echo "✅ Published to NPM successfully!"
