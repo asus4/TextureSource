@@ -1,4 +1,4 @@
-name: Sign and publish UPM package
+name: Sign UPM package
 
 on:
   push:
@@ -8,15 +8,14 @@ on:
 
 permissions:
   contents: write
-  id-token: write
 
 env:
   PACKAGE_DIR: Packages/com.github.asus4.texture-source
   DIST_DIR: dist
 
 jobs:
-  publish:
-    name: Sign and publish
+  sign:
+    name: Sign package
     runs-on: ubuntu-latest
     env:
       UPM_SERVICE_ACCOUNT_KEY_ID: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_ID }}
@@ -26,16 +25,6 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          # See https://docs.npmjs.com/trusted-publishers
-          node-version: 24
-          package-manager-cache: false
-
-      - name: Install latest npm
-        run: npm install -g npm@latest
 
       - name: Read package metadata
         run: |
@@ -63,45 +52,25 @@ jobs:
           bash "$RUNNER_TEMP/upm-install.sh"
           echo "$HOME/.upm/bin" >> "$GITHUB_PATH"
 
-      - name: Verify Unity UPM CLI
-        run: upm --version
-
       - name: Sign package
         run: |
           mkdir -p "$DIST_DIR"
           upm pack "$PACKAGE_DIR" --organization-id "$UPM_ORG_ID" --destination "$DIST_DIR"
 
-      - name: Verify signed package
-        run: |
-          shopt -s nullglob
-          archives=("$DIST_DIR"/*.tgz)
-          if [ "${#archives[@]}" -ne 1 ]; then
-            printf 'Expected exactly one signed .tgz package archive, found %s\n' "${#archives[@]}" >&2
-            exit 1
-          fi
-
-          archive="${archives[0]}"
-          tar -tzf "$archive" | grep -qx 'package/package.json'
-          tar -tzf "$archive" | grep -qx 'package/.attestation.p7m'
-
-          echo "PACKAGE_ARCHIVE=$GITHUB_WORKSPACE/$archive" >> "$GITHUB_ENV"
-          printf 'Archive: %s\n' "$(basename "$archive")"
-          tar -xOzf "$archive" package/package.json | jq '{name, version}'
-
       - name: Create GitHub Release
         if: github.event_name == 'push'
         uses: softprops/action-gh-release@v3
         with:
-          files: dist/*.tgz
-          prerelease: true
+          files: "$DIST_DIR/*.tgz"
+          draft: true
           generate_release_notes: true
 
-      - name: Publish to npm
-        if: github.event_name == 'push'
-        working-directory: ${{ env.PACKAGE_DIR }}
-        run: npm publish "$PACKAGE_ARCHIVE" --registry https://registry.npmjs.org --access public --provenance --tag latest
-
-      - name: Dry run npm publish
+      - name: Upload signed package artifact
         if: github.event_name == 'workflow_dispatch'
-        working-directory: ${{ env.PACKAGE_DIR }}
-        run: npm publish "$PACKAGE_ARCHIVE" --registry https://registry.npmjs.org --access public --provenance --tag latest --dry-run
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}
+          path: ${{ env.DIST_DIR }}/*.tgz
+          if-no-files-found: error
+          retention-days: 5
+          archive: false
