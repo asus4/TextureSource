@@ -47,6 +47,15 @@ jobs:
           printf 'Package name: %s\n' "$package_name"
           printf 'Package version: %s\n' "$package_version"
 
+      - name: Verify tag matches package version
+        if: github.event_name == 'push'
+        run: |
+          expected_tag="v$PACKAGE_VERSION"
+          if [ "$GITHUB_REF_NAME" != "$expected_tag" ]; then
+            printf 'Tag %s does not match package.json version %s\n' "$GITHUB_REF_NAME" "$expected_tag" >&2
+            exit 1
+          fi
+
       - name: Install Unity UPM CLI
         run: |
           curl -fsSL https://cdn.packages.unity.com/upm-cli/install.sh -o "$RUNNER_TEMP/upm-install.sh"
@@ -64,9 +73,9 @@ jobs:
       - name: Verify signed package
         run: |
           shopt -s nullglob
-          archives=("$DIST_DIR"/*.tgz "$DIST_DIR"/*.tar.gz)
+          archives=("$DIST_DIR"/*.tgz)
           if [ "${#archives[@]}" -ne 1 ]; then
-            printf 'Expected exactly one signed package archive, found %s\n' "${#archives[@]}" >&2
+            printf 'Expected exactly one signed .tgz package archive, found %s\n' "${#archives[@]}" >&2
             exit 1
           fi
 
@@ -82,18 +91,12 @@ jobs:
         if: github.event_name == 'push'
         uses: softprops/action-gh-release@v3
         with:
-          files: |
-            dist/*.tgz
-            dist/*.tar.gz
+          files: dist/*.tgz
 
       - name: Publish to npm
         if: github.event_name == 'push'
         run: npm publish "$PACKAGE_ARCHIVE" --access public --provenance --tag latest
-        env:
-          NPM_CONFIG_PROVENANCE: true
 
       - name: Dry run npm publish
         if: github.event_name == 'workflow_dispatch'
         run: npm publish "$PACKAGE_ARCHIVE" --access public --provenance --tag latest --dry-run
-        env:
-          NPM_CONFIG_PROVENANCE: true
