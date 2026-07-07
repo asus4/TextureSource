@@ -17,7 +17,7 @@ namespace TextureSource
         private static readonly Matrix4x4 PushMatrix = Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
 
         public static readonly Lazy<ComputeShader> DefaultComputeShader = new(()
-            => Resources.Load<ComputeShader>("com.github.asus4.texture-source/TextureTransform"));
+            => Resources.Load<ComputeShader>("com.koki-ibukuro.texture-source/TextureTransform"));
 
         private readonly ComputeShader compute;
         private readonly int kernel;

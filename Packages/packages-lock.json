@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.github.asus4.texture-source": {
-      "version": "file:com.github.asus4.texture-source",
+    "com.koki-ibukuro.texture-source": {
+      "version": "file:com.koki-ibukuro.texture-source",
       "depth": 0,
       "source": "embedded",
       "dependencies": {

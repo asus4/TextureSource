@@ -1,6 +1,6 @@
 # Texture Source
 
-[![upm](https://img.shields.io/npm/v/com.github.asus4.texture-source?label=upm)](https://www.npmjs.com/package/com.github.asus4.texture-source)
+[![openupm](https://img.shields.io/npm/v/com.koki-ibukuro.texture-source?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.koki-ibukuro.texture-source/)
 
 TextureSource is a utility that provides a consistent API to get the texture from various sources.
 
@@ -43,25 +43,34 @@ public class TextureSourceSample: MonoBehaviour
 
 ## Install via UPM
 
-Add the following setting to `Packages/manifest.json`
+The package is available on [OpenUPM](https://openupm.com/packages/com.koki-ibukuro.texture-source/). Add the following setting to `Packages/manifest.json`
 
 ```json
 {
   "scopedRegistries": [
     {
-      "name": "npm",
-      "url": "https://registry.npmjs.com",
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com",
       "scopes": [
-        "com.github.asus4"
+        "com.koki-ibukuro"
       ]
     }
   ],
   "dependencies": {
-    "com.github.asus4.texture-source": "0.3.5",
+    "com.koki-ibukuro.texture-source": "0.4.0",
     ...// other dependencies
   }
 }
 ```
+
+Or install via the [openupm-cli](https://github.com/openupm/openupm-cli):
+
+```sh
+openupm add com.koki-ibukuro.texture-source
+```
+
+> [!NOTE]
+> The package was renamed from `com.github.asus4.texture-source` (published on npmjs) to `com.koki-ibukuro.texture-source` since v0.4.0. Update the package name and scoped registry when upgrading from older versions.
 
 ## How To Use
 
@@ -107,4 +116,4 @@ Inspired from [TestTools](https://github.com/keijiro/TestTools)
 
 ## License
 
-[MIT](https://github.com/asus4/TextureSource/blob/main/Packages/com.github.asus4.texture-source/LICENSE)
+[MIT](https://github.com/asus4/TextureSource/blob/main/Packages/com.koki-ibukuro.texture-source/LICENSE)

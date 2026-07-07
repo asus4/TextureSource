@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 env:
-  PACKAGE_DIR: Packages/com.github.asus4.texture-source
+  PACKAGE_DIR: Packages/com.koki-ibukuro.texture-source
   DIST_DIR: dist
 
 jobs:
@@ -56,6 +56,22 @@ jobs:
         run: |
           mkdir -p "$DIST_DIR"
           upm pack "$PACKAGE_DIR" --organization-id "$UPM_ORG_ID" --destination "$DIST_DIR"
+
+      - name: Verify signed package
+        run: |
+          shopt -s nullglob
+          archives=("$DIST_DIR"/*.tgz "$DIST_DIR"/*.tar.gz)
+          if [ "${#archives[@]}" -ne 1 ]; then
+            printf 'Expected exactly one signed package archive, found %s\n' "${#archives[@]}" >&2
+            exit 1
+          fi
+
+          archive="${archives[0]}"
+          tar -tzf "$archive" | grep -qx 'package/package.json'
+          tar -tzf "$archive" | grep -qx 'package/.attestation.p7m'
+
+          printf 'Archive: %s\n' "$(basename "$archive")"
+          tar -xOzf "$archive" package/package.json | jq '{name, version}'
 
       - name: Create GitHub Release
         if: github.event_name == 'push'
