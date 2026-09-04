@@ -2,8 +2,8 @@
 #
 # Create a GitHub release draft from a tgz package file.
 #
-# Publish the verified tgz to npm manually after testing:
-# npm publish <tgz-file-path> --tag latest
+# After publishing the release, OpenUPM picks it up automatically.
+# To also publish to npm, run: ./scripts/publish-npm.sh <tag>
 # Usage: ./scripts/create-release.sh <tgz-file-path>
 #
 

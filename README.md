@@ -1,1 +1,1 @@
-Packages/com.github.asus4.texture-source/README.md
+Packages/com.koki-ibukuro.texture-source/README.md
